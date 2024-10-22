@@ -10,6 +10,9 @@ import javax.sound.sampled.*; // Füge dies am Anfang der Datei hinzu
 public class FlappyBird extends JPanel implements ActionListener, KeyListener {  
     // Die Klasse FlappyBird erbt von JPanel (für das GUI) und implementiert ActionListener (für Timer-Events) und KeyListener (für Tastatur-Events).
 
+    boolean mousePressed = false; // Variable, um zu überprüfen, ob die Maus gedrückt wurde
+    int mouseX, mouseY; // Koordinaten der Maus
+
     int boardWidth = 360;  // Die Breite des Spielfelds.
     int boardHeight = 640;  // Die Höhe des Spielfelds.
 
@@ -18,8 +21,14 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     Image birdImg;
     Image topPipeImg;
     Image bottomPipeImg;
-    Image playButtonImg;
-boolean gameStarted = false; // Spielstatus
+    Image playButtonImg; // Bild für den Spiel-Button
+    boolean gameStarted = false; // Spielstatus
+    boolean startScreen = true; // Variable für den Startbildschirm
+
+    // Lade das Bild für den Spiel-Button
+    {
+        playButtonImg = new ImageIcon(getClass().getResource("./playButton.png")).getImage(); // Zeile 48
+    }
 
     // Vogel-Klasse: Initialisierung der Position und Größe des Vogels.
     int birdX = boardWidth / 8;  // Anfangsposition des Vogels in X.
@@ -27,20 +36,18 @@ boolean gameStarted = false; // Spielstatus
     int birdWidth = 44;  // Breite des Vogels.
     int birdHeight = 34;  // Höhe des Vogels.
     
-
     class Bird {
         int x = birdX;  // X-Position des Vogels.
         int y = birdY;  // Y-Position des Vogels.
         int width = birdWidth;  // Breite des Vogels.
         int height = birdHeight;  // Höhe des Vogels.
         Image img;  // Bild des Vogels.
-
+    
         Bird(Image img) {
             this.img = img;  // Konstruktor für die Bird-Klasse, setzt das Bild des Vogels.
-
-
         }
     }
+
 
     // Rohr-Klasse: Initialisierung der Position und Größe der Rohre.
     int pipeX = boardWidth;  // Anfangsposition des Rohrs in X.
@@ -124,6 +131,7 @@ boolean gameStarted = false; // Spielstatus
         birdImg = new ImageIcon(getClass().getResource("./flappybird.png")).getImage();
         topPipeImg = new ImageIcon(getClass().getResource("./toppipe.png")).getImage();
         bottomPipeImg = new ImageIcon(getClass().getResource("./bottompipe.png")).getImage();
+        playButtonImg = new ImageIcon(getClass().getResource("./playButton.png")).getImage(); // Spiel-Button
     
         // Initialisierung des Vogels.
         bird = new Bird(birdImg);
@@ -173,6 +181,8 @@ boolean gameStarted = false; // Spielstatus
         
 
         
+
+        
     }
     
 
@@ -196,6 +206,15 @@ boolean gameStarted = false; // Spielstatus
         // Zeichnet die Spielkomponenten.
         super.paintComponent(g);  // Ruft die paintComponent-Methode der Elternklasse auf.
         draw(g);  // Ruft die eigene Zeichnen-Methode auf.
+
+        if (startScreen) {
+            int buttonWidth = playButtonImg.getWidth(null) / 2;
+            int buttonHeight = playButtonImg.getHeight(null) / 2;
+g.drawImage(playButtonImg, (boardWidth - buttonWidth) / 2, (boardHeight - buttonHeight) / 2, buttonWidth, buttonHeight, null);
+
+        }
+
+        
     }
 
     public void draw(Graphics g) {  
