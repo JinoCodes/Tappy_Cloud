@@ -10,6 +10,8 @@ import javax.sound.sampled.*; // Füge dies am Anfang der Datei hinzu
 public class FlappyBird extends JPanel implements ActionListener, KeyListener {  
     // Die Klasse FlappyBird erbt von JPanel (für das GUI) und implementiert ActionListener (für Timer-Events) und KeyListener (für Tastatur-Events).
 
+
+    boolean gameOverSoundPlayed = false;  // Neue Variable, um zu überprüfen, ob der Game Over-Sound gespielt wurde
     boolean mousePressed = false; // Variable, um zu überprüfen, ob die Maus gedrückt wurde
     int mouseX, mouseY; // Koordinaten der Maus
 
@@ -286,6 +288,31 @@ public void move() {
             if (!gameOverSound.isRunning()) { 
                 gameOverSound.setFramePosition(0); // Setze den Sound auf den Anfang
                 gameOverSound.start(); // Spiele den Game Over Sound ab
+
+                // Wenn der Vogel unter den Bildschirm gefallen ist
+if (bird.y > boardHeight) {  
+    gameOver = true;  // Setze den Spielstatus auf "Game Over"
+    
+    // Spiele den Game Over-Sound nur einmal ab
+    if (!gameOverSoundPlayed && !gameOverSound.isRunning()) { 
+        gameOverSound.setFramePosition(0); // Setze den Sound auf den Anfang
+        gameOverSound.start(); // Spiele den Game Over-Sound ab
+        gameOverSoundPlayed = true;  // Markiere, dass der Sound gespielt wurde
+    }
+}
+
+// Überprüfen auf Kollision mit dem Rohr
+if (collision(bird, pipe)) {  
+    gameOver = true;  // Setze den Spielstatus auf "Game Over"
+    
+    // Spiele den Game Over-Sound nur einmal ab
+    if (!gameOverSoundPlayed && !gameOverSound.isRunning()) { 
+        gameOverSound.setFramePosition(0); // Setze den Sound auf den Anfang
+        gameOverSound.start(); // Spiele den Game Over-Sound ab
+        gameOverSoundPlayed = true;  // Markiere, dass der Sound gespielt wurde
+    }
+}
+
             }
         }  
         
