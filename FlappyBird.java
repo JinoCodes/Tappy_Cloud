@@ -125,6 +125,48 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         setPreferredSize(new Dimension(boardWidth, boardHeight));  // Setzt die bevorzugte Größe des Spielfelds.
         setFocusable(true);  // Ermöglicht, dass das Panel Tastatureingaben erhält.
         addKeyListener(this);  // Fügt einen KeyListener hinzu, um auf Tastatureingaben zu reagieren.
+        addMouseListener(new MouseAdapter() {
+        
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // Speichere die Koordinaten des Mausklicks
+                mouseX = e.getX();
+                mouseY = e.getY();
+                
+                // Prüfe, ob der Benutzer auf den Startbutton geklickt hat
+                int buttonWidth = playButtonImg.getWidth(null) / 2;
+                int buttonHeight = playButtonImg.getHeight(null) / 2;
+                int buttonX = (boardWidth - buttonWidth) / 2;
+                int buttonY = (boardHeight - buttonHeight) / 2;
+                
+                if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+                // Der Benutzer hat den Startbutton gedrückt
+                startScreen = false;  // Setzt den Startbildschirm auf false
+                gameStarted = true;   // Das Spiel startet
+                gameOver = false;     // Setzt Game Over zurück
+                
+                // Setze alle relevanten Werte zurück
+                bird.y = birdY;           // Setzt die Position des Vogels zurück
+                velocityY = 0;            // Setzt die Geschwindigkeit des Vogels zurück
+                pipes.clear();            // Entfernt alle Rohre
+                score = 0;                // Setzt den Punktestand zurück
+                pipeSpeedMultiplier = 1.0; // Setzt die Geschwindigkeit der Rohre zurück
+                
+                // Starte Timer und Schleife neu
+                placePipeTimer.start();    // Startet das Erstellen der Rohre
+                gameLoop.start();          // Startet die Spielschleife
+                }
+            }
+            
+            
+
+            
+        });
+
+        
+        
+        
         
         
     
@@ -133,7 +175,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         birdImg = new ImageIcon(getClass().getResource("./flappybird.png")).getImage();
         topPipeImg = new ImageIcon(getClass().getResource("./toppipe.png")).getImage();
         bottomPipeImg = new ImageIcon(getClass().getResource("./bottompipe.png")).getImage();
-        playButtonImg = new ImageIcon(getClass().getResource("./playButton.png")).getImage(); // Spiel-Button
+        playButtonImg = new ImageIcon(getClass().getResource("./PlayButton.png")).getImage(); // Spiel-Button
     
         // Initialisierung des Vogels.
         bird = new Bird(birdImg);
@@ -150,7 +192,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     
         // Spielschleifen-Timer (60 FPS).
         gameLoop = new Timer(1000 / 60, this);  // Aktualisiert das Spiel 60 Mal pro Sekunde.
-        gameLoop.start();  // Startet die Spielschleife.
+        gameLoop.start();  // Dies wird nach dem Drücken des Startbuttons ausgeführt
     
         // Lade den Soundeffekt
         try {
@@ -204,20 +246,21 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         pipes.add(bottomPipe);  // Fügt das untere Rohr zur Liste der Rohre hinzu.
     }
 
-    public void paintComponent(Graphics g) {  
-        // Zeichnet die Spielkomponenten.
+    public void paintComponent(Graphics g) {   //Zeichnet die Spielkomponenten
         super.paintComponent(g);  // Ruft die paintComponent-Methode der Elternklasse auf.
         draw(g);  // Ruft die eigene Zeichnen-Methode auf.
-
+    
         if (startScreen) {
             int buttonWidth = playButtonImg.getWidth(null) / 2;
             int buttonHeight = playButtonImg.getHeight(null) / 2;
-g.drawImage(playButtonImg, (boardWidth - buttonWidth) / 2, (boardHeight - buttonHeight) / 2, buttonWidth, buttonHeight, null);
-
+            g.drawImage(playButtonImg, (boardWidth - buttonWidth) / 2, (boardHeight - buttonHeight) / 2, buttonWidth, buttonHeight, null);
+            return;  // Verlasse die Methode, damit der Rest des Spiels nicht gezeichnet wird.
         }
+    }
+    
 
         
-    }
+    
 
     public void draw(Graphics g) {  
         // Zeichnet den Hintergrund, den Vogel und die Rohre.
@@ -267,6 +310,7 @@ double pipeSpeedMultiplier = 1.0;  // Geschwindigkeit der Rohre
 
 // Move Methode      
 public void move() {
+    if (gameStarted) {
     // Schwerkraft auf die vertikale Geschwindigkeit des Vogels anwenden
     velocityY += gravity;  
     // Die Position des Vogels basierend auf seiner vertikalen Geschwindigkeit aktualisieren
@@ -300,6 +344,7 @@ if (bird.y > boardHeight) {
         gameOverSoundPlayed = true;  // Markiere, dass der Sound gespielt wurde
     }
 }
+
 
 // Überprüfen auf Kollision mit dem Rohr
 if (collision(bird, pipe)) {  
@@ -347,6 +392,7 @@ if (collision(bird, pipe)) {
         }  
     }
 }
+}
 
 
     
@@ -368,35 +414,35 @@ boolean collision(Bird a, Pipe b) {
 }
 
 
-    @Override
-    public void actionPerformed(ActionEvent e) {  
-        // Diese Methode wird von der Spielschleife aufgerufen.
-        move();  // Bewegt den Vogel und die Rohre.
-        repaint();  // Zeichnet das Spielfeld neu.
-        if (gameOver) {
-            placePipeTimer.stop();  // Stoppt das Erstellen neuer Rohre bei "Game Over".
-            gameLoop.stop();  // Stoppt die Spielschleife bei "Game Over".
-        }
-    }
+@Override
+public void actionPerformed(ActionEvent e) {  
+    move();  // Bewegt den Vogel und die Rohre.
+    repaint();  // Zeichnet das Spielfeld neu.
 
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            velocityY = -9;
-    
-            if (gameOver) {
-                // Setzt den Vogel zurück
-                bird.y = birdY;  
-                velocityY = 0;  
-                pipes.clear();  
-                gameOver = false;  
-                score = 0;  
-                pipeSpeedMultiplier = 1.0;  // Setze die Rohrgeschwindigkeit zurück
-                gameLoop.start();  
-                placePipeTimer.start();  
-            }
-        }
+    if (gameOver) {
+        placePipeTimer.stop();  // Stoppt das Erstellen neuer Rohre bei "Game Over".
+        gameLoop.stop();  // Stoppt die Spielschleife bei "Game Over".
+
+        // Zeige den Startbildschirm nach Game Over
+        startScreen = true;  // Setze den Startbildschirm wieder auf true
+        gameStarted = false;  // Das Spiel ist beendet, also nicht mehr gestartet
     }
+}
+
+
+@Override
+public void keyPressed(KeyEvent e) {
+    if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+        // Verhindere das Drücken der Leertaste nach einem Game Over
+        if (!gameStarted || gameOver) {
+            return;  // Ignoriere das Drücken der Leertaste, wenn das Spiel nicht läuft oder Game Over ist
+        }
+        
+        // Aktion bei Leertaste während des Spiels (zum Beispiel Springen des Vogels)
+        velocityY = -8;  // Setzt die Geschwindigkeit, damit der Vogel springt
+    }
+}
+
     
 
     double speedIncreaseFactor = 1.01;  // 1% Geschwindigkeitssteigerung nach jedem Rohr-Paar
