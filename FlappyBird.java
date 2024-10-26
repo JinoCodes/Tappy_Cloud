@@ -265,6 +265,10 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     public void draw(Graphics g) {  
         // Zeichnet den Hintergrund, den Vogel und die Rohre.
         g.drawImage(backgroundImg, 0, 0, this.boardWidth, this.boardHeight, null);  // Zeichnet den Hintergrund.
+        if (!gameStarted) {
+            return; // verlässt die Methode, wenn das Spiel nicht gestartet wurde
+        }
+        
         g.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height, null);  // Zeichnet den Vogel.
     
         // Zeichnet alle Rohre.
