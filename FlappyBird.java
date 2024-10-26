@@ -26,10 +26,13 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     Image playButtonImg; // Bild für den Spiel-Button
     boolean gameStarted = false; // Spielstatus
     boolean startScreen = true; // Variable für den Startbildschirm
+    ImageIcon gameOverGif = new ImageIcon(getClass().getResource("./Game_Over.gif"));
+
 
     // Lade das Bild für den Spiel-Button
     {
-        playButtonImg = new ImageIcon(getClass().getResource("./playButton.png")).getImage(); // Zeile 48
+        playButtonImg = new ImageIcon(getClass().getResource("./playButton.png")).getImage(); 
+
     }
 
     // Vogel-Klasse: Initialisierung der Position und Größe des Vogels.
@@ -176,6 +179,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         topPipeImg = new ImageIcon(getClass().getResource("./toppipe.png")).getImage();
         bottomPipeImg = new ImageIcon(getClass().getResource("./bottompipe.png")).getImage();
         playButtonImg = new ImageIcon(getClass().getResource("./PlayButton.png")).getImage(); // Spiel-Button
+        
     
         // Initialisierung des Vogels.
         bird = new Bird(birdImg);
@@ -246,17 +250,29 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         pipes.add(bottomPipe);  // Fügt das untere Rohr zur Liste der Rohre hinzu.
     }
 
-    public void paintComponent(Graphics g) {   //Zeichnet die Spielkomponenten
-        super.paintComponent(g);  // Ruft die paintComponent-Methode der Elternklasse auf.
-        draw(g);  // Ruft die eigene Zeichnen-Methode auf.
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        draw(g);
     
         if (startScreen) {
+            // Startbildschirm mit Play-Button anzeigen
             int buttonWidth = playButtonImg.getWidth(null) / 2;
             int buttonHeight = playButtonImg.getHeight(null) / 2;
             g.drawImage(playButtonImg, (boardWidth - buttonWidth) / 2, (boardHeight - buttonHeight) / 2, buttonWidth, buttonHeight, null);
-            return;  // Verlasse die Methode, damit der Rest des Spiels nicht gezeichnet wird.
+            return;
+        }
+    
+        // Wenn Game Over, zeige das Game Over GIF
+        if (gameOver) {
+            int gameOverWidth = gameOverGif.getIconWidth() / 6;  // Größe anpassen
+            int gameOverHeight = gameOverGif.getIconHeight() / 6; // Größe anpassen
+    
+            g.drawImage(gameOverGif.getImage(), (boardWidth - gameOverWidth) / 2, (boardHeight - gameOverHeight) / 4, gameOverWidth, gameOverHeight, this);
+            return;
         }
     }
+    
+    
     
 
         
@@ -283,7 +299,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     
         // Überprüfen, ob das Spiel vorbei ist
         if (gameOver) {
-            scoreText = "Game Over: " + String.valueOf((int) score);  // Zeigt "Game Over" an.
+            scoreText = "Points: " + String.valueOf((int) score);  // Zeigt "Game Over" an.
         } else {
             scoreText = String.valueOf((int) score);  // Zeigt den aktuellen Punktestand an.
         }
@@ -420,22 +436,25 @@ boolean collision(Bird a, Pipe b) {
 
 @Override
 public void actionPerformed(ActionEvent e) {  
-    move();  // Bewegt den Vogel und die Rohre.
-    repaint();  // Zeichnet das Spielfeld neu.
+    move();  
+    repaint();  
 
     if (gameOver) {
-        placePipeTimer.stop();  // Stoppt das Erstellen neuer Rohre bei "Game Over".
-        gameLoop.stop();  // Stoppt die Spielschleife bei "Game Over".
-
-        // Zeige den Startbildschirm nach Game Over
-        startScreen = true;  // Setze den Startbildschirm wieder auf true
-        gameStarted = false;  // Das Spiel ist beendet, also nicht mehr gestartet
+        placePipeTimer.stop();  
+        gameLoop.stop();  
     }
 }
 
 
+
 @Override
 public void keyPressed(KeyEvent e) {
+    // Wenn das Spiel zu Ende ist und eine Taste gedrückt wird, setze das Spiel zurück
+    if (gameOver) {
+        resetGame();
+        return;
+    }
+
     if (e.getKeyCode() == KeyEvent.VK_SPACE) {
         // Verhindere das Drücken der Leertaste nach einem Game Over
         if (!gameStarted || gameOver) {
@@ -446,6 +465,26 @@ public void keyPressed(KeyEvent e) {
         velocityY = -8;  // Setzt die Geschwindigkeit, damit der Vogel springt
     }
 }
+
+
+public void resetGame() {
+    // Setze alle relevanten Variablen und Zustände zurück
+    gameOver = false;
+    gameOverSoundPlayed = false;
+    startScreen = true;
+    gameStarted = false;
+    score = 0;
+    bird.y = birdY;
+    velocityY = 0;
+    pipes.clear();
+    pipeSpeedMultiplier = 1.0;
+
+    // Starte die Timers neu
+    gameLoop.start();
+    placePipeTimer.start();
+}
+
+
 
     
 
