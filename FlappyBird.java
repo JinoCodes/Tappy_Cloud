@@ -27,6 +27,8 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     boolean gameStarted = false; // Spielstatus
     boolean startScreen = true; // Variable für den Startbildschirm
     ImageIcon gameOverGif = new ImageIcon(getClass().getResource("./Game_Over.gif"));
+    
+
 
 
     // Lade das Bild für den Spiel-Button
@@ -74,34 +76,6 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         }
         
     }
-
-    class MusicPlayer {
-        private Clip clip;
-    
-        public MusicPlayer(String filePath) {
-            try {
-                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResource(filePath));
-                clip = AudioSystem.getClip();
-                clip.open(audioInputStream);
-                clip.loop(Clip.LOOP_CONTINUOUSLY); // Musik läuft in einer Schleife
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    
-        public void play() {
-            clip.start(); // Musik abspielen
-        }
-    
-        public void stop() {
-            clip.stop(); // Musik stoppen
-        }
-    
-        public void setVolume(float volume) {
-            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            gainControl.setValue(volume); // Lautstärke setzen
-        }
-    }
     
 
     // Spiel-Logik
@@ -129,6 +103,8 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         setFocusable(true);  // Ermöglicht, dass das Panel Tastatureingaben erhält.
         addKeyListener(this);  // Fügt einen KeyListener hinzu, um auf Tastatureingaben zu reagieren.
         addMouseListener(new MouseAdapter() {
+
+            
         
             @Override
             public void mousePressed(MouseEvent e) {
@@ -281,29 +257,42 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     public void draw(Graphics g) {  
         // Zeichnet den Hintergrund, den Vogel und die Rohre.
         g.drawImage(backgroundImg, 0, 0, this.boardWidth, this.boardHeight, null);  // Zeichnet den Hintergrund.
+        
         if (!gameStarted) {
             return; // verlässt die Methode, wenn das Spiel nicht gestartet wurde
         }
         
         g.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height, null);  // Zeichnet den Vogel.
-    
+        
         // Zeichnet alle Rohre.
         for (int i = 0; i < pipes.size(); i++) {
             Pipe pipe = pipes.get(i);
             g.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height, null);
         }
-    
+        
         // Punktestand oder Game Over anzeigen
         g.setFont(new Font("Daydream", Font.PLAIN, 24)); // Schriftgröße einstellen
         String scoreText;
-    
+        
         // Überprüfen, ob das Spiel vorbei ist
         if (gameOver) {
-            scoreText = "Points: " + String.valueOf((int) score);  // Zeigt "Game Over" an.
-        } else {
-            scoreText = String.valueOf((int) score);  // Zeigt den aktuellen Punktestand an.
+            scoreText = "Points: " + (int) score;  // Setzt den Text für "Game Over".
+            g.setColor(Color.red);  // Farbe auf Rot für den "Game Over"-Text.
+        
+            // Zentrische Position des Textes berechnen
+            int textWidth = g.getFontMetrics().stringWidth(scoreText);
+            int textHeight = g.getFontMetrics().getHeight();
+        
+            // Y-Position etwas höher setzen
+            int adjustedYPosition = (boardHeight + textHeight) / 2 - 90; // -90 hebt den Text um 90 Pixel
+        
+            g.drawString(scoreText, (boardWidth - textWidth) / 2, adjustedYPosition);
+            return;
         }
-    
+        
+        // Spiel-Punktestand zeichnen
+        scoreText = String.valueOf((int) score);  // Zeigt den aktuellen Punktestand an.
+        
         // Position für den Text
         int x = 10;
         int y = 35;
@@ -314,11 +303,13 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         g.drawString(scoreText, x + 1, y); // Rahmen rechts
         g.drawString(scoreText, x, y - 1); // Rahmen oben
         g.drawString(scoreText, x, y + 1); // Rahmen unten
-    
+        
         // Punktestand zeichnen
-        g.setColor(Color.white); // Setze die Farbe wieder auf Weiß
+        g.setColor(Color.white); // Setze die Farbe auf Weiß während des Spiels
         g.drawString(scoreText, x, y); // Zeichne den Punktestand
     }
+    
+    
     
     
 
@@ -424,7 +415,7 @@ if (collision(bird, pipe)) {
 boolean collision(Bird a, Pipe b) {
     // Füge eine Kollisionstoleranz hinzu
 
-    int tolerance = 2;  // Toleranzwert
+    int tolerance = 1;  // Toleranzwert
     
 
     return a.x < b.x + b.width - tolerance &&   
