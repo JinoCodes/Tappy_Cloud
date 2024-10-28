@@ -19,3 +19,4 @@ public class App {  // Definiert die Hauptklasse "App", die den Einstiegspunkt d
     }
 }
 
+

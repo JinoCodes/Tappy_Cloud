@@ -7,6 +7,8 @@ import javax.swing.*;  // Importiert die Swing-Bibliothek für GUI-Komponenten.
 import javax.sound.sampled.*; // Füge dies am Anfang der Datei hinzu
 
 
+
+
 public class FlappyBird extends JPanel implements ActionListener, KeyListener {  
     // Die Klasse FlappyBird erbt von JPanel (für das GUI) und implementiert ActionListener (für Timer-Events) und KeyListener (für Tastatur-Events).
 
@@ -97,6 +99,8 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     Font daydreamFont;
 
 
+
+
     FlappyBird() {  
         // Konstruktor für die FlappyBird-Klasse. Hier werden die Spielkomponenten initialisiert.
         setPreferredSize(new Dimension(boardWidth, boardHeight));  // Setzt die bevorzugte Größe des Spielfelds.
@@ -113,8 +117,8 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
                 mouseY = e.getY();
                 
                 // Prüfe, ob der Benutzer auf den Startbutton geklickt hat
-                int buttonWidth = playButtonImg.getWidth(null) / 2;
-                int buttonHeight = playButtonImg.getHeight(null) / 2;
+                int buttonWidth = playButtonImg.getWidth(null) / 3;
+                int buttonHeight = playButtonImg.getHeight(null) / 4;
                 int buttonX = (boardWidth - buttonWidth) / 2;
                 int buttonY = (boardHeight - buttonHeight) / 2;
                 
@@ -440,22 +444,28 @@ public void actionPerformed(ActionEvent e) {
 
 @Override
 public void keyPressed(KeyEvent e) {
-    // Wenn das Spiel zu Ende ist und eine Taste gedrückt wird, setze das Spiel zurück
-    if (gameOver) {
-        resetGame();
+    // Wenn das Spiel vorbei ist und die Leertaste gedrückt wird, starte das Spiel sofort neu
+    if (gameOver && e.getKeyCode() == KeyEvent.VK_SPACE) {
+        // Spiel neu starten ohne Startbildschirm
+        gameOver = false;
+        gameOverSoundPlayed = false;
+        score = 0;
+        bird.y = birdY;
+        velocityY = -8;  // Setzt die Geschwindigkeit, damit der Vogel springt
+        pipes.clear();
+        pipeSpeedMultiplier = 1.0;
+        
+        gameLoop.start();
+        placePipeTimer.start();
         return;
     }
 
-    if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-        // Verhindere das Drücken der Leertaste nach einem Game Over
-        if (!gameStarted || gameOver) {
-            return;  // Ignoriere das Drücken der Leertaste, wenn das Spiel nicht läuft oder Game Over ist
-        }
-        
-        // Aktion bei Leertaste während des Spiels (zum Beispiel Springen des Vogels)
+    // Normales Spielverhalten, wenn das Spiel läuft und die Leertaste gedrückt wird
+    if (e.getKeyCode() == KeyEvent.VK_SPACE && !gameOver) {
         velocityY = -8;  // Setzt die Geschwindigkeit, damit der Vogel springt
     }
 }
+
 
 
 public void resetGame() {
