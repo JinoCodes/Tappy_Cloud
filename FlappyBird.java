@@ -29,6 +29,8 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
     boolean gameStarted = false; // Spielstatus
     boolean startScreen = true; // Variable für den Startbildschirm
     ImageIcon gameOverGif = new ImageIcon(getClass().getResource("./Game_Over.gif"));
+    Image restartButtonImg; // Restart Button Bild
+
     
 
 
@@ -112,35 +114,50 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         
             @Override
             public void mousePressed(MouseEvent e) {
-                // Speichere die Koordinaten des Mausklicks
                 mouseX = e.getX();
                 mouseY = e.getY();
-                
-                // Prüfe, ob der Benutzer auf den Startbutton geklickt hat
-                int buttonWidth = playButtonImg.getWidth(null) / 3;
-                int buttonHeight = playButtonImg.getHeight(null) / 4;
-                int buttonX = (boardWidth - buttonWidth) / 2;
-                int buttonY = (boardHeight - buttonHeight) / 2;
-                
-                if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
-                mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
-                // Der Benutzer hat den Startbutton gedrückt
-                startScreen = false;  // Setzt den Startbildschirm auf false
-                gameStarted = true;   // Das Spiel startet
-                gameOver = false;     // Setzt Game Over zurück
-                
-                // Setze alle relevanten Werte zurück
-                bird.y = birdY;           // Setzt die Position des Vogels zurück
-                velocityY = 0;            // Setzt die Geschwindigkeit des Vogels zurück
-                pipes.clear();            // Entfernt alle Rohre
-                score = 0;                // Setzt den Punktestand zurück
-                pipeSpeedMultiplier = 1.0; // Setzt die Geschwindigkeit der Rohre zurück
-                
-                // Starte Timer und Schleife neu
-                placePipeTimer.start();    // Startet das Erstellen der Rohre
-                gameLoop.start();          // Startet die Spielschleife
+            
+                if (startScreen) {
+                    int buttonWidth = playButtonImg.getWidth(null) / 3;
+                    int buttonHeight = playButtonImg.getHeight(null) / 4;
+                    int buttonX = (boardWidth - buttonWidth) / 2;
+                    int buttonY = (boardHeight - buttonHeight) / 2;
+                    
+                    if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                        mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+                        startScreen = false;
+                        gameStarted = true;
+                        gameOver = false;
+                        bird.y = birdY;
+                        velocityY = 0;
+                        pipes.clear();
+                        score = 0;
+                        pipeSpeedMultiplier = 1.0;
+                        placePipeTimer.start();
+                        gameLoop.start();
+                    }
                 }
+            
+                // Überprüfen, ob der Benutzer auf den Restart-Button klickt, wenn "Game Over"
+            // Überprüfen, ob der Benutzer auf den Restart-Button klickt, wenn "Game Over"
+            if (gameOver) {
+           // Bestimme hier die korrekte Position und Größe des Buttons
+    int buttonWidth = restartButtonImg.getWidth(null) / 6; 
+    int buttonHeight = restartButtonImg.getHeight(null) / 6;
+    int buttonX = (boardWidth - buttonWidth) / 2;
+    int buttonY = boardHeight / 2 - 160;  // Platzierung unterhalb der Points
+
+    // Überprüfe, ob der Klick innerhalb der Button-Grenzen liegt
+             if (mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+             mouseY >= buttonY && mouseY <= buttonY + buttonHeight) {
+              resetGame(); // Funktion, um das Spiel neu zu starten
+              return; // Sofortiges Starten des Spiels
+    }
+}
+                
+
             }
+            
             
             
 
@@ -159,6 +176,8 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         topPipeImg = new ImageIcon(getClass().getResource("./toppipe.png")).getImage();
         bottomPipeImg = new ImageIcon(getClass().getResource("./bottompipe.png")).getImage();
         playButtonImg = new ImageIcon(getClass().getResource("./PlayButton.png")).getImage(); // Spiel-Button
+        restartButtonImg = new ImageIcon(getClass().getResource("./Restart_Button.png")).getImage(); //Restart Button
+
         
     
         // Initialisierung des Vogels.
@@ -248,7 +267,15 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
             int gameOverHeight = gameOverGif.getIconHeight() / 6; // Größe anpassen
     
             g.drawImage(gameOverGif.getImage(), (boardWidth - gameOverWidth) / 2, (boardHeight - gameOverHeight) / 4, gameOverWidth, gameOverHeight, this);
-            return;
+
+            int buttonWidth = restartButtonImg.getWidth(null) / 6; 
+            int buttonHeight = restartButtonImg.getHeight(null) / 6;
+            int buttonX = (boardWidth - buttonWidth) / 2;
+            int buttonY = boardHeight / 2 - 160;  // Platzierung unterhalb der Pointss
+        
+            g.drawImage(restartButtonImg, buttonX, buttonY, buttonWidth, buttonHeight, null); //Wenn Game Over Restart Button anzeigen
+            return;         
+
         }
     }
     
@@ -472,8 +499,8 @@ public void resetGame() {
     // Setze alle relevanten Variablen und Zustände zurück
     gameOver = false;
     gameOverSoundPlayed = false;
-    startScreen = true;
-    gameStarted = false;
+    startScreen = false; //Sofort zum Speil Kehren
+    gameStarted = true;
     score = 0;
     bird.y = birdY;
     velocityY = 0;
@@ -483,6 +510,8 @@ public void resetGame() {
     // Starte die Timers neu
     gameLoop.start();
     placePipeTimer.start();
+
+    
 }
 
 
